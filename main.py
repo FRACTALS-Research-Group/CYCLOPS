@@ -1,12 +1,18 @@
+#
+# Copyright (c) 2026 FRACTALS Reseasrch Group
+# Visit the Research Group website for more information: https://fractals.group/
+#
+
+
 """
-Monte Carlo optimization pipeline for peptide–protein binding.
+Monte Carlo optimization pipeline for peptide-protein binding.
 
-This script orchestrates sequence mutation, AlphaFold3 prediction,
-docking, molecular dynamics simulations, and post-processing analysis.
-
-NOTE:
-- Code is research-oriented and not optimized for speed or general use.
-- Developed for exploratory computational drug design experiments.
+This script orchestrates:
+    - sequence mutation
+    - AlphaFold3 prediction
+    - docking
+    - molecular dynamics simulations
+    - post-processing and analysis
 """
 
 import time

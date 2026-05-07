@@ -1,59 +1,99 @@
 import random
+from typing import List, Sequence, Tuple
 
-def mutation(sequence, position, amino_acids):
+
+def mutation(sequence: str, position: int, amino_acids: Sequence[str]) -> str:
     """
-    Sostituisce un amminoacido in una sequenza con uno casuale dalla lista di amminoacidi.
+        Substitute a single amino acid in a sequence at a given position.
 
-    Args:
-        sequence (str): La sequenza originale di amminoacidi.
-        position (int): La posizione dell'amminoacido da sostituire (0-indice).
-        amino_acids (list): Lista di amminoacidi possibili.
+        Parameters
+        ----------
+        sequence : str
+            Original amino-acid sequence.
+        position : int
+            Position to mutate (0-based).
+        amino_acids : Sequence[str]
+            Allowed amino acids to sample from.
 
-    Returns:
-        str: La sequenza mutata con l'amminoacido sostituito.
+        Returns
+        -------
+        str
+            Mutated sequence.
+
+        Raises
+        ------
+        ValueError
+            If position is out of range [0, len(sequence)-1].
     """
     if position < 0 or position >= len(sequence):
-        raise ValueError("La posizione deve essere valida per la sequenza.")
+        raise ValueError("Position must be within the sequence length.")
 
-    # Scegli un amminoacido casuale dalla lista
-    new_amino_acid = random.choice(amino_acids)
+    new_amino_acid = random.choice(list(amino_acids))
+    return sequence[:position] + new_amino_acid + sequence[position + 1:]
 
-    # Crea una nuova sequenza con l'amminoacido mutato
-    mutated_sequence = sequence[:position] + new_amino_acid + sequence[position + 1:]
-
-    return mutated_sequence
-
-def random_n_mutation(sequence, valid_positions, amino_acids, n=2):
+def random_n_mutation(sequence: str, valid_positions: Sequence[int], 
+                      amino_acids: Sequence[str], n: int = 2
+                    ) -> Tuple[str, List[int]]:
     """
-    Sostituisce 'n' amminoacidi in posizioni casuali con altri casuali dalla lista di amminoacidi,
-    assicurandosi che il nuovo amminoacido sia diverso da quello originale.
+        Apply n random mutations at distinct positions selected from valid_positions,
+        ensuring the new amino acid differs from the original at each position.
 
-    Args:
-        sequence (str): La sequenza originale di amminoacidi.
-        amino_acids (list): Lista di amminoacidi possibili.
-        n (int): Numero di mutazioni da applicare.
+        Parameters
+        ----------
+        sequence : str
+            Original amino-acid sequence.
+        valid_positions : Sequence[int]
+            Positions eligible for mutation (0-based).
+        amino_acids : Sequence[str]
+            Allowed amino acids to sample from.
+        n : int
+            Number of mutations.
 
-    Returns:
-        str: La sequenza mutata.
+        Returns
+        -------
+        (mutated_sequence, positions) : (str, List[int])
+            Mutated sequence and the list of mutated positions.
+
+        Raises
+        ------
+        ValueError
+            If n exceeds the number of valid positions or if amino_acids is invalid.
     """
+    if n <= 0:
+        raise ValueError(f"n must be > 0 (got {n}).")
+
     if n > len(valid_positions):
-        raise ValueError("Il numero di mutazioni supera le posizioni mutabili disponibili.")
+        raise ValueError("Number of mutations exceeds available mutable positions.")
 
-    sequence = list(sequence)
-    positions = random.sample(valid_positions, n)
-    
+    aa_list = list(amino_acids)
+    if len(aa_list) < 2:
+        raise ValueError("amino_acids must contain at least 2 entries to enforce aa != original.")
+
+    seq_list = list(sequence)
+    positions = random.sample(list(valid_positions), n)
+
     for pos in positions:
-        original = sequence[pos]
-        choices = [aa for aa in amino_acids if aa != original]
-        sequence[pos] = random.choice(choices)
-    
-    mutate_seq = ''.join(sequence)
+        original = seq_list[pos]
+        choices = [aa for aa in aa_list if aa != original]
+        seq_list[pos] = random.choice(choices)
+
+    mutate_seq = "".join(seq_list)
     return mutate_seq, positions
 
+def random_start_seq(k: int = 10) -> str:
+    """
+        Generate a random starting peptide sequence: 'C' + k random amino acids + 'C'.
 
-import random
+        Parameters
+        ----------
+        k : int
+            Length of the random middle segment.
 
-def random_start_seq():
-    amminoacidi = "ACDEFGHIKLMNPQRSTVWY"
-    stringa_casuale = "C" + ''.join(random.choices(amminoacidi, k=10)) + "C"
-    return stringa_casuale
+        Returns
+        -------
+        str
+            Random sequence.
+    """
+    amino_acids = "ACDEFGHIKLMNPQRSTVWY"
+    return "C" + "".join(random.choices(amino_acids, k=k)) + "C"
+
