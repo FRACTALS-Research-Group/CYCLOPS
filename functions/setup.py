@@ -1,4 +1,5 @@
 import argparse
+import json
 import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
@@ -45,6 +46,40 @@ def setup_logger(log_file: str | Path) -> logging.Logger:
 
 
 
+def load_step0_results(step0_results_path: Path, logger: Any) -> Dict[str, float]:
+    """
+        Load the reference docking scores saved by step_0.py.
+
+        Parameters
+        ----------
+        step0_results_path : Path
+            Path to the JSON file produced by step_0.py.
+        logger : Any
+            Logger instance.
+
+        Returns
+        -------
+        Dict[str, float]
+            Dictionary with keys ``score_pre_simulation`` and ``score_post_simulation``.
+
+        Raises
+        ------
+        FileNotFoundError
+            If the JSON file does not exist (step_0.py has not been run yet).
+    """
+    step0_results_path = Path(step0_results_path)
+    if not step0_results_path.exists():
+        raise FileNotFoundError(
+            f"step_0 results file not found: {step0_results_path}. "
+            "Run step_0.py first and point --results_path to the same location "
+            "used by --step0_results in main.py."
+        )
+    with open(step0_results_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    logger.info("Loaded step-0 results from %s: %s", step0_results_path, data)
+    return data
+
+
 def setup_directories(directories):
     """
         Creates the specified directories if they do not already exist.
@@ -57,7 +92,7 @@ def setup_directories(directories):
     for d in directories:
         Path(d).mkdir(parents=True, exist_ok=True)
 
-def init_scores_file(scores_file: Path, ref_seq: str, logger: Any) -> None:
+def init_scores_file(scores_file: Path, ref_seq: str, step0_results_path: Path, logger: Any) -> None:
     """
         Initialize docking score CSV if missing.
 
@@ -67,12 +102,17 @@ def init_scores_file(scores_file: Path, ref_seq: str, logger: Any) -> None:
             Path to the CSV file where docking scores will be recorded. If the file does not exist, it will be created with a header and an initial entry for the reference sequence.
         ref_seq : str
             The reference sequence to be recorded in the initial entry of the scores file.
+        step0_results_path : Path
+            Path to the JSON file produced by step_0.py containing the reference docking scores.
     """
     if not scores_file.exists():
+        results = load_step0_results(step0_results_path, logger)
+        score_pre = results["score_pre_simulation"]
+        score_post = results["score_post_simulation"]
         scores_file.parent.mkdir(parents=True, exist_ok=True)
         with open(scores_file, "w", encoding="utf-8") as f:
             f.write("iteration,position,sequence,score_pre_simulation,score_post_simulation,delta_e\n")
-            f.write(f"0,ref,{ref_seq},-6.87,-7.66,0.00\n")
+            f.write(f"0,ref,{ref_seq},{score_pre},{score_post},0.00\n")
         logger.info("Initialized scores file: %s", scores_file)
 
 def log_time(start: float, end: float, i: int, logger: Any) -> None:
@@ -140,10 +180,11 @@ def setup_paths(args: argparse.Namespace) -> Tuple[Dict[str, Path], Path]:
         "OUTPUT_PDB": base / "output" / "complexes",
         "DOCKING_SCORES": base / "output" / "analysis",
         "CHECKPOINT_DIR": base / "checkpoints",
+        "STEP0_RESULTS": base / "step0_results.json",
         "GLOBAL_RESULTS": base / "global_results",
         "TOP_10": base / "results_top10",
     }
-    setup_directories(paths.values())
+    setup_directories(v for k, v in paths.items() if k != "STEP0_RESULTS")
     return paths, base
 
 

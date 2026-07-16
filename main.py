@@ -24,7 +24,7 @@ import os
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from functions.setup import setup_logger, setup_paths, setup_refs, init_scores_file, parse_args, log_time
+from functions.setup import setup_logger, setup_paths, setup_refs, init_scores_file, parse_args, log_time, load_step0_results
 from functions.mutations import random_n_mutation
 from functions.vinadock import vina_dock
 from functions.simulate_complex import simulate_complex
@@ -220,7 +220,9 @@ def run_loop(args, paths, logger, receptor_path, ref_ligand_path, DOCKING_SCORES
     amino_acids = list("ARNDQEGHILKMFPSTWYV")
 
     ref_seq, old_pos, old_i, old_docking_score, start_iter, T = load_latest_checkpoint(
-        paths["CHECKPOINT_DIR"], args.ref_seq, "ref", "seq", -7.97, T_0
+        paths["CHECKPOINT_DIR"], args.ref_seq, "ref", "seq",
+        load_step0_results(paths["STEP0_RESULTS"], logger)["score_post_simulation"],
+        T_0
     )
     old_docking_score_pre = old_docking_score
     logger.info(f"Starting from iteration {start_iter}, ref_seq={ref_seq}")
@@ -275,11 +277,12 @@ def run_loop(args, paths, logger, receptor_path, ref_ligand_path, DOCKING_SCORES
 if __name__ == "__main__":
     args = parse_args()
     paths, base = setup_paths(args)
-    
-    DOCKING_SCORES_FILE = paths["DOCKING_SCORES"] / "docking_scores.csv"
-    init_scores_file(DOCKING_SCORES_FILE, args.ref_seq)
+
     OUTPUT_LOG = base / "log.log"
     logger = setup_logger(OUTPUT_LOG)
+
+    DOCKING_SCORES_FILE = paths["DOCKING_SCORES"] / "docking_scores.csv"
+    init_scores_file(DOCKING_SCORES_FILE, args.ref_seq, paths["STEP0_RESULTS"], logger)
     
     receptor_path, ref_ligand_path = setup_refs(args, paths, base)
 

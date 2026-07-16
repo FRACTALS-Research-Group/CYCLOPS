@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import shutil
 import subprocess
@@ -353,6 +354,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--base_dir", default="inputs/ref/pdb", help="Base directory for outputs")
     parser.add_argument("--box_size", nargs=3, type=float, default=[20, 20, 20], help="Docking box size (Å)")
     parser.add_argument("--log_file", default="step_0.log", help="Log file path")
+    parser.add_argument(
+        "--results_path",
+        default="step0_results.json",
+        help="Path where step 0 docking results will be saved (JSON). "
+             "Pass the same path to main.py via --step0_results.",
+    )
     return parser
 
 
@@ -420,6 +427,16 @@ def main() -> int:
         logger=logger,
     )
     logger.info("Docking score (ref system): %.2f kcal/mol", best_score)
+
+    # Save step-0 results so that main.py can read them instead of using hardcoded values.
+    step0_results = {
+        "score_pre_simulation": float(best_score),
+        "score_post_simulation": float(best_score),
+    }
+    results_path = os.path.abspath(args.results_path)
+    with open(results_path, "w", encoding="utf-8") as _f:
+        json.dump(step0_results, _f, indent=2)
+    logger.info("Step-0 results saved to: %s", results_path)
 
     contacts_single_system(
         pdb_path=f"{args.base_dir}/{OUTBASE}_system_reimaged.pdb",
