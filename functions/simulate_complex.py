@@ -25,6 +25,13 @@ def fix_pdb(pdb_path: str, output_path: str, logger: Any) -> None:
             Logger for logging information and errors.
     """
     fixer = PDBFixer(filename=pdb_path)
+    original_chains = []
+    with open(pdb_path) as f:
+        for line in f:
+            if line.startswith(("ATOM", "HETATM")):
+                chain = line[21].strip()
+                if chain not in original_chains:
+                    original_chains.append(chain)
 
     try:
         fixer.findMissingResidues()
@@ -63,8 +70,19 @@ def fix_pdb(pdb_path: str, output_path: str, logger: Any) -> None:
         logger.debug(traceback.format_exc())
 
     os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+    # with open(output_path, "w", encoding="utf-8") as out_file:
+    #     PDBFile.writeFile(fixer.topology, fixer.positions, out_file)
+    
+    for chain, old_id in zip(fixer.topology.chains(), original_chains):
+        chain.id = old_id
+    
     with open(output_path, "w", encoding="utf-8") as out_file:
-        PDBFile.writeFile(fixer.topology, fixer.positions, out_file)
+        PDBFile.writeFile(
+            fixer.topology,
+            fixer.positions,
+            out_file,
+            keepIds=True
+        )
 
     logger.info("Fixed PDB saved: %s -> %s", pdb_path, output_path)
 

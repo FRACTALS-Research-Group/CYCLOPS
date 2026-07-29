@@ -1,53 +1,30 @@
 import json
-import os
+import random
 from pathlib import Path
-from typing import Any, Dict
 
+def generate_json_files(pos, i, seq, chain_id, output_dir):
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-def generate_json_files(pos: str, i: int, mutate_seq: str, output_dir: str | os.PathLike,
-    logger) -> str:
-    """
-        Generate the AlphaFold3 input JSON file for a given iteration/mutation.
-
-        This function keeps the same intent as your existing pipeline:
-        it creates a JSON file under output_dir and returns its path.
-
-        Parameters
-        ----------
-        pos : str
-            Mutation position label (e.g. "3_7").
-        i : int
-            Iteration index.
-        mutate_seq : str
-            Mutated sequence.
-        output_dir : str | os.PathLike
-            Directory where the JSON file will be created.
-        logger : logging.Logger
-            Mandatory logger.
-
-        Returns
-        -------
-        str
-            Path to the generated JSON file.
-    """
-    out_dir = Path(output_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    json_path = out_dir / f"seq_{pos}_{i}.json"
-
-
-    payload: Dict[str, Any] = {
+    json_data = {
         "name": f"seq_{pos}_{i}",
-        "sequence": mutate_seq,
-        "metadata": {
-            "iteration": int(i),
-            "pos": str(pos),
-        },
+        "sequences": [
+            {
+                "protein": {
+                    "id": [chain_id],
+                    "sequence": seq
+                }
+            }
+        ],
+        "modelSeeds": [1],
+        "dialect": "alphafold3",
+        "version": 1
     }
+    
+    json_path = output_dir / f"seq_{pos}_{i}.json"
+    with open(json_path, "w") as file:
+        json.dump(json_data, file, indent=2)
+    return json_path
 
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=2)
-
-    logger.info("Generated AF3 JSON: %s", json_path)
-    return str(json_path)
-
+# Esempio di utilizzo:
+# generate_json_files(ref_seq, keep_pos, amino_acids, start_iteration, "output_json_dir")

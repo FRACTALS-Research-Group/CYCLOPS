@@ -2,6 +2,8 @@ import argparse
 import json
 import logging
 from logging.handlers import RotatingFileHandler
+import os
+import os
 from pathlib import Path
 from typing import Any, Dict, Tuple, Optional
 
@@ -146,7 +148,7 @@ def parse_args():
     parser.add_argument("--step_size", type=float, default=0.002, help="Size of each simulation step")
     parser.add_argument("--temperature", type=float, default=2, help="Metropolis temperature")
     parser.add_argument("--ref_seq", type=str, default="CAAAAAAAAAAAC", help="Reference sequence")  # E.g., CAADQTQDTEAAC
-    parser.add_argument("--keep_pos", type=int, nargs='+', default=[0, 1], help="Positions to keep unchanged")  # E.g., 0 5 6 7 12
+    parser.add_argument("--keep_pos", type=int, nargs='+', default=[0, 12], help="Positions to keep unchanged")  # E.g., 0 5 6 7 12
     parser.add_argument("--iter", type=int, default=201, help="Number of iterations of the loop")
     parser.add_argument("--n_mut", type=int, default=1, help="Number of mutations attempted")
     return parser.parse_args()
@@ -213,8 +215,8 @@ def setup_refs(
         Tuple[str, str]
             A tuple containing the file paths to the prepared receptor and ligand pdbqt files as strings.
     """
-    ref_receptor_pdb = paths["REF_INPUT_FOLDER"] / f"{args.input_rece_file}"
-    ref_ligand_pdb = paths["REF_INPUT_FOLDER"] / f"{args.ref_lig_file}"
+    ref_receptor_pdb = paths["REF_INPUT_FOLDER"] / os.path.basename(f"{args.input_rece_file}")
+    ref_ligand_pdb = paths["REF_INPUT_FOLDER"] / os.path.basename(f"{args.ref_lig_file}")
 
     pdb2pdbqt_rece(str(ref_receptor_pdb), str(paths["REF_OUTPUT_FOLDER"]), str(base), conversion="*.pdb", logger=logger)
     pdb2pdbqt_lig(str(ref_ligand_pdb).replace(".pdb", ""), str(paths["REF_OUTPUT_FOLDER"]), str(base), logger=logger)

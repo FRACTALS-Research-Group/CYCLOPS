@@ -208,7 +208,7 @@ def run_docking(
             Best docking score from the pre-simulation docking step (kcal/mol).
     """
     # Generate AF3 input JSON + run AF3
-    json_path = generate_json_files(pos, i, mutate_seq, output_dir=str(JSON_DIR))
+    json_path = generate_json_files(pos, i, mutate_seq, chain_id="C", output_dir=str(JSON_DIR))
     logger.info("Generated JSON for AF3: %s", json_path)
 
     alphafold3(json_path, output_dir=str(LIG_INPUT_FOLDER), logger=logger)
@@ -311,6 +311,7 @@ def run_full_simulation(
             T_restrain=400,
             temp_start=1000,
             temp_end=310,
+            logger=logger
         )
         logger.info("MD simulation completed (iter=%d pos=%s)", i, pos)
     except Exception:

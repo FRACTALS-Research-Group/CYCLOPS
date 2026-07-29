@@ -38,9 +38,9 @@ def split_pdb_by_chain(input_pdb: str, output_pdb_ab: str, output_pdb_c: str, lo
         for line in infile:
             if line.startswith("ATOM") or line.startswith("HETATM"):
                 chain_id = line[21]  # chain ID column
-                if chain_id == "A":
+                if chain_id in ["A", "B"]:
                     out_ab.write(line)
-                elif chain_id == "B":
+                elif chain_id == "C":
                     out_c.write(line)
             else:
                 out_ab.write(line)

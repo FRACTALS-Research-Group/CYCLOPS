@@ -65,7 +65,7 @@ def pdb2pdbqt_rece(input_folder: str, output_folder: str, base: str, logger, con
 
     # Keep your original behavior: if glob finds nothing, try "<input_folder>.pdb"
     if not pdb_files:
-        fallback = f"{input_folder}.pdb"
+        fallback = f"{input_folder}"
         pdb_files = [fallback]
         logger.warning("No files found with pattern %s, trying fallback: %s", conversion, fallback)
 
@@ -114,10 +114,17 @@ def pdb2pdbqt_lig(input_folder: str, output_folder: str, base: str, logger, conv
     )
 
     # Keep original behavior: expects "<input_folder>.pdb"
-    pdb_file = f"{input_folder}.pdb"
-    if not os.path.exists(pdb_file):
-        logger.error("Ligand PDB not found: %s", pdb_file)
-        raise FileNotFoundError(f"Ligand PDB not found: {pdb_file}")
+    try:
+        pdb_file = f"{input_folder}/{conversion}"
+        if not os.path.exists(pdb_file):
+            logger.error("Ligand PDB not found: %s", pdb_file)
+            raise FileNotFoundError(f"Ligand PDB not found: {pdb_file}")
+    except:
+        pdb_file = f"{input_folder}.pdb"
+        if not os.path.exists(pdb_file):
+            logger.error("Ligand PDB not found: %s", pdb_file)
+            raise FileNotFoundError(f"Ligand PDB not found: {pdb_file}")
+        
 
     pdb_name = os.path.splitext(os.path.basename(pdb_file))[0]
     pdbqt_file = os.path.join(output_folder, f"{pdb_name}.pdbqt")
