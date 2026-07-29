@@ -89,11 +89,11 @@ def run_analysis(base: str, outbase: str, logger: Any) -> None:
         "python",
         "./functions/analyse.py",
         "-p",
-        f"{base}/{outbase}_system_minimised.pdb",
+        f"{base}/{outbase}_minimised.pdb",
         "-t",
-        f"{base}/{outbase}_system_traj.dcd",
+        f"{base}/{outbase}_traj.dcd",
         "-o",
-        f"{base}/{outbase}_system_reimaged",
+        f"{base}/{outbase}_reimaged",
         "-r",
     ]
     logger.info("Running analysis: %s", " ".join(command))
@@ -122,11 +122,11 @@ def reimage_trajectory(base: str, outbase: str, logger: Any) -> None:
 
     command = [
         "mdconvert",
-        f"{base}/{outbase}_system_reimaged.dcd",
+        f"{base}/{outbase}_reimaged.dcd",
         "-o",
-        f"{base}/{outbase}_system_traj_reimaged.pdb",
+        f"{base}/{outbase}_traj_reimaged.pdb",
         "-t",
-        f"{base}/{outbase}_system_reimaged.pdb",
+        f"{base}/{outbase}_reimaged.pdb",
     ]
     logger.info("Reimaging trajectory: %s", " ".join(command))
     ret = subprocess.call(command)
@@ -238,8 +238,8 @@ def contacts_single_system(
     logger.info("Contact analysis for: pdb=%s traj=%s", pdb_path, traj_path)
 
     u = mda.Universe(pdb_path, traj_path)
-    peptide = u.select_atoms("chainID B")
-    receptor = u.select_atoms("chainID A")
+    peptide = u.select_atoms("chainID C")
+    receptor = u.select_atoms("chainID A and chainID B")
 
     # --- 1. Atomic contacts ---
     contact_frames = defaultdict(set)
@@ -396,8 +396,8 @@ def main() -> int:
 
     # Step 4 — most probable conformation
     rep_frame, _, _ = get_most_probable_conformation(
-        f"{output_base}_system_traj_reimaged.pdb",
-        pos="ref",
+        f"{output_base}_traj_reimaged.pdb",
+        pos=OUTBASE,
         i=0,
         output_path=args.base_dir,
         subsample_rate=20,
@@ -439,8 +439,8 @@ def main() -> int:
     logger.info("Step-0 results saved to: %s", results_path)
 
     contacts_single_system(
-        pdb_path=f"{args.base_dir}/{OUTBASE}_system_reimaged.pdb",
-        traj_path=f"{args.base_dir}/{OUTBASE}_system_traj_reimaged.pdb",
+        pdb_path=f"{args.base_dir}/{OUTBASE}_reimaged.pdb",
+        traj_path=f"{args.base_dir}/{OUTBASE}_traj_reimaged.pdb",
         output_dir=f"{args.base_dir}/analysis_contacts",
         logger=logger,
     )
