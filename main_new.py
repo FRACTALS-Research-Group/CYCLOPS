@@ -34,6 +34,7 @@ from functions.setup import (
     setup_paths,
     setup_refs,
     init_scores_file,
+    load_step0_results,
     parse_args,
     log_time,
 )
@@ -600,13 +601,17 @@ def run_loop(
     T_min = 0.4
     l_exp_slow = 0.01
 
+    # Step-0 reference score is the fallback starting score when no checkpoint exists.
+    step0_results = load_step0_results(Path(paths["STEP0_RESULTS"]), logger)
+    step0_post_score = _safe_float(step0_results.get("score_post_simulation"), default=-7.97)
+
     # Load latest checkpoint (external function)
     ref_seq, old_pos, old_i, old_docking_score, start_iter, T = load_latest_checkpoint(
         paths["CHECKPOINT_DIR"],
         args.ref_seq,
         "ref",
         "seq",
-        -7.97,
+        step0_post_score,
         T_0,
         logger=logger
     )
@@ -721,11 +726,16 @@ def main() -> int:
     args = parse_args()
     paths, base = setup_paths(args)
 
-    DOCKING_SCORES_FILE = Path(paths["DOCKING_SCORES"]) / "docking_scores.csv"
-    init_scores_file(DOCKING_SCORES_FILE, args.ref_seq, logger=logger)
-
     OUTPUT_LOG = Path(base) / "log.log"
     logger = setup_logger(OUTPUT_LOG)
+
+    DOCKING_SCORES_FILE = Path(paths["DOCKING_SCORES"]) / "docking_scores.csv"
+    init_scores_file(
+        DOCKING_SCORES_FILE,
+        args.ref_seq,
+        Path(paths["STEP0_RESULTS"]),
+        logger=logger,
+    )
 
     receptor_path, ref_ligand_path = setup_refs(args, paths, base, logger=logger)
 
