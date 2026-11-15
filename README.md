@@ -23,7 +23,7 @@ Mutations are accepted or rejected according to the Metropolis criterion with an
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│                  Monte Carlo Loop (N iterations)          │
+│             Monte Carlo Loop (N iterations)              │
 │                                                          │
 │  1. Propose random amino-acid mutation(s)                │
 │        ↓                                                 │
@@ -60,7 +60,7 @@ with decay constant $\lambda = 0.01$ and $T_{\min} = 0.4$.
 ## Repository Structure
 
 ```
-ALLIANCE/
+CYCLOPS/
 ├── main.py                  # Main MC optimization loop
 ├── main_new.py              # Refactored pipeline (type-annotated)
 ├── step_0.py                # Pre-run: reference complex simulation & baseline docking
@@ -242,7 +242,7 @@ python main.py \
 
 ## Fault Tolerance
 
-ALLIANCE saves a pickle checkpoint every 10 iterations containing the current sequence, best score, temperature, and iteration index. If execution is interrupted, the pipeline automatically resumes from the latest checkpoint.
+CYCLOPS saves a pickle checkpoint every 10 iterations containing the current sequence, best score, temperature, and iteration index. If execution is interrupted, the pipeline automatically resumes from the latest checkpoint.
 
 `step0_results.json` is written only once (by `step_0.py`) and is never overwritten by `main.py`, so the reference baseline remains stable across restarts.
 
@@ -250,5 +250,6 @@ ALLIANCE saves a pickle checkpoint every 10 iterations containing the current se
 
 ## License
 
-Copyright © 2026 FRACTALS Research Group. All rights reserved.  
-Visit [https://fractals.group](https://fractals.group) for more information.
+Released under the MIT License. See [LICENSE](LICENSE) for details.
+
+CYCLOPS interfaces with AlphaFold 3 but does not redistribute it. The AlphaFold 3 model weights are not open-source and must be obtained separately from DeepMind under their own terms of use.
