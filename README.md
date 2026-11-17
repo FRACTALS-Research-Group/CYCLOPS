@@ -190,8 +190,8 @@ python main.py \
 | `--base_dir` | `str` | *(required)* | Root directory for all I/O; `step0_results.json` must exist here |
 | `--input_rece_file` | `str` | *(required)* | Receptor PDB filename |
 | `--ref_lig_file` | `str` | *(required)* | Reference ligand PDB filename |
-| `--ref_seq` | `str` | `CAAAAAAAAAAAC` | Starting peptide sequence |
-| `--keep_pos` | `int+` | `[0, 1]` | Residue positions (0-based) held fixed during mutation |
+| `--ref_seq` | `str` | `CAAAAAAAAAAC` | Starting peptide sequence |
+| `--keep_pos` | `int+` | `[0, 11]` | Residue positions (0-based) held fixed during mutation |
 | `--iter` | `int` | `201` | Total number of MC iterations |
 | `--n_mut` | `int` | `1` | Number of simultaneous mutations per step |
 | `--steps` | `int` | `5 000 000` | MD integration steps per iteration |
