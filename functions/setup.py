@@ -147,8 +147,8 @@ def parse_args():
     parser.add_argument("--steps", type=int, default=5000000, help="Number of simulation steps") # 5000000
     parser.add_argument("--step_size", type=float, default=0.002, help="Size of each simulation step")
     parser.add_argument("--temperature", type=float, default=2, help="Metropolis temperature")
-    parser.add_argument("--ref_seq", type=str, default="CAAAAAAAAAAAC", help="Reference sequence")  # E.g., CAADQTQDTEAAC
-    parser.add_argument("--keep_pos", type=int, nargs='+', default=[0, 12], help="Positions to keep unchanged")  # E.g., 0 5 6 7 12
+    parser.add_argument("--ref_seq", type=str, default="CAAAAAAAAAAC", help="Reference sequence")  # E.g., CAADQTQDTEAAC
+    parser.add_argument("--keep_pos", type=int, nargs='+', default=[0, 11], help="Positions to keep unchanged")  # E.g., 0 5 6 7 12
     parser.add_argument("--iter", type=int, default=201, help="Number of iterations of the loop")
     parser.add_argument("--n_mut", type=int, default=1, help="Number of mutations attempted")
     return parser.parse_args()
