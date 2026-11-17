@@ -62,7 +62,6 @@ with decay constant $\lambda = 0.01$ and $T_{\min} = 0.4$.
 ```
 CYCLOPS/
 ├── main.py                  # Main MC optimization loop
-├── main.py                  # Pipeline (type-annotated)
 ├── step_0.py                # Pre-run: reference complex simulation & baseline docking
 ├── my_env.yaml              # Conda environment specification
 └── functions/
@@ -247,6 +246,65 @@ CYCLOPS saves a pickle checkpoint every 10 iterations containing the current seq
 `step0_results.json` is written only once (by `step_0.py`) and is never overwritten by `main.py`, so the reference baseline remains stable across restarts.
 
 ---
+
+# Examples
+
+Two worked examples reproducing the systems described in the CYCLOPS
+Application Note: the β2-microglobulin scoring benchmark and the
+CD8/MHC-I design case study.
+
+Each example directory ships the prepared receptor and reference
+peptide under `inputs/ref/pdb/`. The structures derive from PDB entries
+[1LDS](https://www.rcsb.org/structure/1LDS) and
+[1AKJ](https://www.rcsb.org/structure/1AKJ). 
+
+## Before you start
+
+- **AlphaFold 3 is required and is not bundled.** Its model weights are
+  not open-source and must be obtained from DeepMind under their own
+  terms. See the main README for the expected runner path.
+- **A GPU is required.** The reference runs used a single NVIDIA A40
+  (CUDA 12.4).
+
+
+## Example 1 — β2-microglobulin benchmark
+
+Cyclic poly-alanine reference peptide against the b2m receptor. This is
+the system used to validate the scoring protocol against experimental
+binding free energies.
+
+Input files: `rece.pdb` (receptor), `lig.pdb` (cyclic reference
+peptide, `CAAAAAAAAAAC`). There is a single ligand file, so it is passed
+both as `--ligand_pdb` and as `--ref_lig_file`.
+
+
+## Example 2 — CD8/MHC-I case study
+
+Optimization of a cyclic peptide at the CD8/MHC-I interface. The
+reference ligand is the alpha-3 domain heptapeptide `DQTQDTE`
+(`lig_1AKJ.pdb`), embedded in the cyclic scaffold `CAADQTQDTEAAC`
+(`cyc_1AKJ.pdb`). The receptor (`rece_1AKJ.pdb`) is the CD8 homodimer,
+chains D and E.
+
+
+## Results
+
+Each run writes into its own example directory:
+
+| Path | Contents |
+|---|---|
+| `output/analysis/docking_scores.csv` | Per-iteration scores and acceptance data |
+| `output/complexes/` | Peptide–receptor complexes |
+| `results_top10/` | Best-scoring candidates |
+| `checkpoints/` | Resume points, written every 10 iterations |
+| `log.log` | Run log |
+
+The score file columns are `iteration`, `position`, `sequence`,
+`score_pre_simulation`, `score_post_simulation` and `delta_e`. The
+value used as the fitness in the Metropolis test is
+`score_post_simulation`, the Vina score obtained by re-docking the most
+representative conformation after molecular dynamics refinement.
+
 
 ## License
 
