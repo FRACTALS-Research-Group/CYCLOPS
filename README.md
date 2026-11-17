@@ -172,8 +172,8 @@ python main.py \
     --base_dir         /path/to/CYCLOPS \
     --input_rece_file  receptor.pdb \
     --ref_lig_file     ligand.pdb \
-    --ref_seq          CAADQTQDTEAAC \
-    --keep_pos         0 12 \
+    --ref_seq          CAADQTQDTEAC \
+    --keep_pos         0 6 7 11 \
     --iter             200 \
     --n_mut            1 \
     --steps            5000000 \
