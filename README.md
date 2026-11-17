@@ -62,7 +62,7 @@ with decay constant $\lambda = 0.01$ and $T_{\min} = 0.4$.
 ```
 CYCLOPS/
 ├── main.py                  # Main MC optimization loop
-├── main_new.py              # Refactored pipeline (type-annotated)
+├── main.py                  # Pipeline (type-annotated)
 ├── step_0.py                # Pre-run: reference complex simulation & baseline docking
 ├── my_env.yaml              # Conda environment specification
 └── functions/
